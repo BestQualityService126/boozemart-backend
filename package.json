@@ -1,0 +1,31 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Node.js Restful CRUD API with Node.js, Express and MySQL",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js",
+    "build": "mkdir dist && babel src -s -d dist",
+    "start": "npm run-script build && cross-env NODE_ENV=production node server.js"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mysql",
+    "restapi"
+  ],
+  "bin": "server.js",
+  "author": "super",
+  "license": "ISC",
+  "dependencies": {
+    "@fast-csv/parse": "^4.3.6",
+    "cors": "^2.8.5",
+    "csv": "^6.3.0",
+    "express": "^4.18.1",
+    "fs": "^0.0.1-security",
+    "mysql": "^2.18.1",
+    "pkg": "^5.8.1",
+    "production": "^0.0.2"
+  }
+}
