@@ -24,40 +24,43 @@ exports.operation = (req, res) => {
                 tableName = "society";
                 break;
         }
-        let fields = "";
-        let values = "";
         let arr = [];
-        readFile(req.body.file, res => arr.push(res));
-
-        console.log("aaaaa", arr)
-        /*  let query = `INSERT INTO ${tableName} (${fields}) VALUES (${values})`;
-          console.log(query);
-          sql.query(query, (err, result) => {
-              if (err) {
-                  res.status(500).send({
-                      message:
-                          err.message || "Some error occurred while creating the Tutorial."
-                  });
-              } else {
-                  res.send({id: result.insertId, ...req.body.data})
-              }
-          });*/
+        console.log(req.body.file.name)
+       /* fs.createReadStream(req.body.file)
+            .pipe(csv.parse())
+            .on('error', error => console.error(error))
+            .on('data', function (row) {
+                let line = String(row).split(',');
+                arr.push(line);
+            })
+            .on('end', rowCount => {
+                let query = "";
+                let fields = "";
+                for (let i = 0; i < arr[0].length - 1; i++) {
+                    fields += arr[0][i] + ",";
+                }
+                fields += arr[0][arr[0].length - 1];
+                for (let i = 1; i < arr.length; i++) {
+                    let values = "";
+                    for (let j = 0; j < arr[i].length - 1; j++) {
+                        values += "'" + arr[i][j] + "',";
+                    }
+                    values += "'" + arr[i][arr[i].length - 1] + "'";
+                    query += `INSERT INTO ${tableName} (${fields}) VALUES (${values});`;
+                }
+                console.log(query);
+                sql.query(query, (err, result) => {
+                    if (err) {
+                        res.status(500).send({
+                            message:
+                                err.message || "Some error occurred while creating the Tutorial."
+                        });
+                    } else {
+                        res.send({id: result.insertId, ...req.body.data})
+                    }
+                });
+            });*/
     }
 };
 
-
-async function readFile(file, callback) {
-    await fs.createReadStream(file)
-        .pipe(csv.parse())
-        .on('error', error => console.error(error))
-        .on('data', function (row) {
-            let line = String(row).split(',');
-            callback(line);
-        })
-        .on('end', rowCount => console.log(`Parsed ${rowCount} rows`));
-}
-
-function f() {
-
-}
 

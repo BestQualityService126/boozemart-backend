@@ -9,8 +9,14 @@ exports.operation = (req, res) => {
         case "add":
             add(req, res);
             break;
+        case "addMulti":
+            addMulti(req, res);
+            break;
         case "update":
             update(req, res);
+            break;
+        case "updateMulti":
+            updateMulti(req, res);
             break;
         case "delete":
             deleteOne(req, res);
@@ -150,6 +156,42 @@ function add(req, res) {
     }
 }
 
+function addMulti(req, res) {
+    console.log("add");
+    if (!req.body) {
+        res.status(400).send({
+            message: "Content can not be empty!"
+        });
+    } else {
+        let requestUrl = req.originalUrl;
+        let mainTable = tables[requestUrl].main;
+        let query = "";
+        for (let j = 0; j < req.body.data.length; j++) {
+            let fields = "";
+            let values = "";
+            for (let i = 0; i < Object.keys(req.body.data[j]).length - 1; i++) {
+                fields += Object.keys(req.body.data[j])[i] + ",";
+                values += "'" + req.body.data[j][Object.keys(req.body.data[j])[i]] + "',";
+            }
+            fields += Object.keys(req.body.data[j])[Object.keys(req.body.data[j]).length - 1];
+            values += "'" + req.body.data[j][Object.keys(req.body.data[j])[Object.keys(req.body.data[j]).length - 1]] + "'";
+            query += `INSERT INTO ${mainTable} (${fields}) VALUES (${values});`;
+        }
+
+        console.log(query);
+        sql.query(query, (err, result) => {
+            if (err) {
+                res.status(500).send({
+                    message:
+                        err.message || "Some error occurred while creating the Tutorial."
+                });
+            } else {
+                res.send({id: result.insertId, ...req.body.data})
+            }
+        });
+    }
+}
+
 function update(req, res) {
     console.log("update");
     if (!req.body.data) {
@@ -165,7 +207,42 @@ function update(req, res) {
     setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(req.body.where,[])}`;
+    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(req.body.where, [])}`;
+    console.log(query);
+    sql.query(query, (err, result) => {
+            if (err) {
+                res.status(500).send({
+                    message: "Error updating Tutorial with id " + req.body.id
+                });
+            } else {
+                if (result.affectedRows === 0) {
+                    res.status(404).send({
+                        message: `Not found Tutorial with id ${req.body.id}.`
+                    });
+                } else {
+                    res.send({id: req.params.id, ...req.body.data});
+                }
+            }
+        }
+    );
+}
+
+function updateMulti(req, res) {
+    console.log("update");
+    if (!req.body.data) {
+        res.status(400).send({
+            message: "Content can not be empty!"
+        });
+    }
+    let requestUrl = req.originalUrl;
+    let mainTable = tables[requestUrl].main;
+    let setQuery = "";
+    let data = req.body.data;
+    for (let i = 0; i < Object.keys(data).length - 1; i++) {
+        setQuery += Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "',"
+    }
+    setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
+    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(req.body.where, [])}`;
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
