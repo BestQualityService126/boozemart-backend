@@ -23,9 +23,9 @@ function get(req, res) {
 
     const hashPassword = password => {
         return crypto.createHash('sha256').update(password).digest('hex')
-    }
-    const password = hashPassword(req.body.data.password)
-    console.log(password)
+    };
+    const password = hashPassword(req.body.data.password);
+    console.log(password);
     //
     // const compareHashPassword = (password, hashedPassword) => {
     //     if (hashPassword(password) === hashedPassword) {

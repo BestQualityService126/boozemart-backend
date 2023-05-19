@@ -25,7 +25,7 @@ exports.operation = (req, res) => {
                 break;
         }
         let arr = [];
-        console.log(req.body.file.name)
+        console.log(typeof req.body.file,req.body.file)
        /* fs.createReadStream(req.body.file)
             .pipe(csv.parse())
             .on('error', error => console.error(error))
