@@ -46,12 +46,14 @@ module.exports = app => {
     router.post(apis.subCategoryList, generalController.operation);
     router.post(apis.productList, generalController.operation);
     router.post(apis.productVarient, generalController.operation);
-    router.post(apis.bulkUpload, bulkupController.operation);
+    router.post(apis.bulkUploadProduct, bulkupController.operation);
+    router.post(apis.bulkUploadVarient, bulkupController.operation);
+    router.post(apis.bulkUploadCity, bulkupController.operation);
+    router.post(apis.bulkUploadSociety, bulkupController.operation);
     router.post(apis.trendingSearchProduct, generalController.operation);
     router.post(apis.trendingSearchProductSelected, generalController.operation);
     router.post(apis.storeProductsList, generalController.operation);
     router.post(apis.societyList, generalController.operation);
-    router.post(apis.areaBulkUploadCitySociety, bulkupController.operation);
     router.post(apis.cityList, generalController.operation);
     router.post(apis.storesWaitingForApprovalStoreList, generalController.operation);
     router.post(apis.storesFinance, generalController.operation);
