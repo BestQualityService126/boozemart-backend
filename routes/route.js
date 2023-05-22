@@ -1,5 +1,6 @@
 
 const apis = require("../config/apis");
+const { authJwt } = require("../middleware");
 
 module.exports = app => {
     const generalController = require("../controllers/generalController");
@@ -9,7 +10,7 @@ module.exports = app => {
 
     var router = require("express").Router();
 
-    router.post(apis.home, homeController.get);
+    router.post(apis.home, [authJwt.verifyToken], homeController.get);
 
     router.post(apis.admin, adminController.operation);
 
