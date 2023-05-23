@@ -88,7 +88,7 @@ exports.get = (req, res) => {
         if (err) {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while retrieving tutorials."
+                    err.message || "Some error occurred while retrieving items."
             });
         } else {
             data.last_week = results[0][0].value === null ? 0 : results[0][0].value;

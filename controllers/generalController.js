@@ -100,6 +100,7 @@ function getSelect(select) {
 
 function get(req, res) {
     console.log("get");
+    console.log(req.originalUrl, req.body)
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let subTables = tables[requestUrl].sub;
@@ -116,7 +117,7 @@ function get(req, res) {
         if (err) {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while retrieving tutorials."
+                    err.message || "Some error occurred while retrieving items."
             });
         } else {
             res.send(result);
@@ -147,7 +148,7 @@ function add(req, res) {
             if (err) {
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while creating the Tutorial."
+                        err.message || "Some error occurred while creating the item."
                 });
             } else {
                 res.send({id: result.insertId, ...req.body.data})
@@ -182,8 +183,7 @@ function addMulti(req, res) {
         sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message:
-                        err.message || "Some error occurred while creating the Tutorial."
+                    message: err.message || "Some error occurred while creating the item."
                 });
             } else {
                 res.send({id: result.insertId, ...req.body.data})
@@ -212,12 +212,12 @@ function update(req, res) {
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating Tutorial with id " + req.body.id
+                    message: "Error updating item with id " + req.body.id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found Tutorial with id ${req.body.id}.`
+                        message: `Not found item with id ${req.body.id}.`
                     });
                 } else {
                     res.send({id: req.params.id, ...req.body.data});
@@ -247,12 +247,12 @@ function updateMulti(req, res) {
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating Tutorial with id " + req.body.id
+                    message: "Error updating item with id " + req.body.id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found Tutorial with id ${req.body.id}.`
+                        message: `Not found item with id ${req.body.id}.`
                     });
                 } else {
                     res.send({id: req.params.id, ...req.body.data});
@@ -271,15 +271,15 @@ function deleteOne(req, res) {
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete Tutorial with id " + req.body.id
+                message: "Could not delete item with id " + req.body.id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found Tutorial with id ${req.body.id}.`
+                    message: `Not found item with id ${req.body.id}.`
                 });
             } else {
-                res.send({message: `Tutorial was deleted successfully!`});
+                res.send({message: `item was deleted successfully!`});
             }
         }
     });
@@ -294,15 +294,15 @@ function deleteAll(req, res) {
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete Tutorial with id " + req.body.id
+                message: "Could not delete item with id " + req.body.id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found Tutorial with id ${req.body.id}.`
+                    message: `Not found item with id ${req.body.id}.`
                 });
             } else {
-                res.send({message: `Tutorial was deleted successfully!`});
+                res.send({message: `item was deleted successfully!`});
             }
         }
     });

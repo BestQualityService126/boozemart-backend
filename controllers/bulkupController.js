@@ -45,7 +45,7 @@ exports.operation = (req, res) => {
                                     if (err) {
                                         res.status(500).send({
                                             message:
-                                                err.message || "Some error occurred while creating the Tutorial."
+                                                err.message || "Some error occurred while creating the item."
                                         });
                                     } else {
                                         res.send("Success bulk up")
@@ -84,7 +84,7 @@ function bulkUpProduct(arr, res) {
                 if (err) {
                     res.status(500).send({
                         message:
-                            err.message || "Some error occurred while creating the Tutorial."
+                            err.message || "Some error occurred while creating the item."
                     });
                 } else {
                     res.send("Success bulk up")

@@ -44,7 +44,7 @@ function get(req, res) {
         if (err) {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while retrieving tutorials."
+                    err.message || "Some error occurred while retrieving items."
             });
         } else {
             let retData = {success: false, message: 'Password not matched', accessToken: '', userData: result[0]};
@@ -83,7 +83,7 @@ function add(req, res) {
             if (err) {
                 res.status(500).send({
                     message:
-                        err.message || "Some error occurred while creating the Tutorial."
+                        err.message || "Some error occurred while creating the item."
                 });
             } else {
                 res.send({id: result.insertId, ...req.body.data})
@@ -111,12 +111,12 @@ function update(req, res) {
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating Tutorial with id " + req.body.id
+                    message: "Error updating item with id " + req.body.id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found Tutorial with id ${req.body.id}.`
+                        message: `Not found item with id ${req.body.id}.`
                     });
                 } else {
                     res.send({id: req.params.id, ...req.body.data});
@@ -133,15 +133,15 @@ function deleteOne(req, res) {
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete Tutorial with id " + req.body.id
+                message: "Could not delete item with id " + req.body.id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found Tutorial with id ${req.body.id}.`
+                    message: `Not found item with id ${req.body.id}.`
                 });
             } else {
-                res.send({message: `Tutorial was deleted successfully!`});
+                res.send({message: `item was deleted successfully!`});
             }
         }
     });
