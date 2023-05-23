@@ -2,7 +2,7 @@ const sql = require("../config/db.js");
 const tables = require("../config/tables");
 
 exports.operation = (req, res) => {
-    switch (req.body.method) {
+    switch (JSON.parse(req.body.payload).method) {
         case "get":
             get(req, res);
             break;
@@ -100,7 +100,6 @@ function getSelect(select) {
 
 function get(req, res) {
     console.log("get");
-    console.log(req.originalUrl, req.body)
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let subTables = tables[requestUrl].sub;
@@ -111,7 +110,7 @@ function get(req, res) {
 
     let query = `SELECT ${getSelect(select)} FROM ${mainTable}`;
 
-    query += join(subTables) + getWhere(req.body.where, where) + getGroupBy(groupBy) + getOrderBy(orderBy);
+    query += join(subTables) + getWhere(JSON.parse(req.body.payload).where, where) + getGroupBy(groupBy) + getOrderBy(orderBy);
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
@@ -127,7 +126,7 @@ function get(req, res) {
 
 function add(req, res) {
     console.log("add");
-    if (!req.body) {
+    if (!JSON.parse(req.body.payload)) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
@@ -136,12 +135,12 @@ function add(req, res) {
         let mainTable = tables[requestUrl].main;
         let fields = "";
         let values = "";
-        for (let i = 0; i < Object.keys(req.body.data).length - 1; i++) {
-            fields += Object.keys(req.body.data)[i] + ",";
-            values += "'" + req.body.data[Object.keys(req.body.data)[i]] + "',";
+        for (let i = 0; i < Object.keys(JSON.parse(req.body.payload).data).length - 1; i++) {
+            fields += Object.keys(JSON.parse(req.body.payload).data)[i] + ",";
+            values += "'" + JSON.parse(req.body.payload).data[Object.keys(JSON.parse(req.body.payload).data)[i]] + "',";
         }
-        fields += Object.keys(req.body.data)[Object.keys(req.body.data).length - 1];
-        values += "'" + req.body.data[Object.keys(req.body.data)[Object.keys(req.body.data).length - 1]] + "'";
+        fields += Object.keys(JSON.parse(req.body.payload).data)[Object.keys(JSON.parse(req.body.payload).data).length - 1];
+        values += "'" + JSON.parse(req.body.payload).data[Object.keys(JSON.parse(req.body.payload).data)[Object.keys(JSON.parse(req.body.payload).data).length - 1]] + "'";
         let query = `INSERT INTO ${mainTable} (${fields}) VALUES (${values})`;
         console.log(query);
         sql.query(query, (err, result) => {
@@ -151,7 +150,7 @@ function add(req, res) {
                         err.message || "Some error occurred while creating the item."
                 });
             } else {
-                res.send({id: result.insertId, ...req.body.data})
+                res.send({id: result.insertId, ...JSON.parse(req.body.payload).data})
             }
         });
     }
@@ -159,7 +158,7 @@ function add(req, res) {
 
 function addMulti(req, res) {
     console.log("add");
-    if (!req.body) {
+    if (!JSON.parse(req.body.payload)) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
@@ -167,15 +166,15 @@ function addMulti(req, res) {
         let requestUrl = req.originalUrl;
         let mainTable = tables[requestUrl].main;
         let query = "";
-        for (let j = 0; j < req.body.data.length; j++) {
+        for (let j = 0; j < JSON.parse(req.body.payload).data.length; j++) {
             let fields = "";
             let values = "";
-            for (let i = 0; i < Object.keys(req.body.data[j]).length - 1; i++) {
-                fields += Object.keys(req.body.data[j])[i] + ",";
-                values += "'" + req.body.data[j][Object.keys(req.body.data[j])[i]] + "',";
+            for (let i = 0; i < Object.keys(JSON.parse(req.body.payload).data[j]).length - 1; i++) {
+                fields += Object.keys(JSON.parse(req.body.payload).data[j])[i] + ",";
+                values += "'" + JSON.parse(req.body.payload).data[j][Object.keys(JSON.parse(req.body.payload).data[j])[i]] + "',";
             }
-            fields += Object.keys(req.body.data[j])[Object.keys(req.body.data[j]).length - 1];
-            values += "'" + req.body.data[j][Object.keys(req.body.data[j])[Object.keys(req.body.data[j]).length - 1]] + "'";
+            fields += Object.keys(JSON.parse(req.body.payload).data[j])[Object.keys(JSON.parse(req.body.payload).data[j]).length - 1];
+            values += "'" + JSON.parse(req.body.payload).data[j][Object.keys(JSON.parse(req.body.payload).data[j])[Object.keys(JSON.parse(req.body.payload).data[j]).length - 1]] + "'";
             query += `INSERT INTO ${mainTable} (${fields}) VALUES (${values});`;
         }
 
@@ -186,7 +185,7 @@ function addMulti(req, res) {
                     message: err.message || "Some error occurred while creating the item."
                 });
             } else {
-                res.send({id: result.insertId, ...req.body.data})
+                res.send({id: result.insertId, ...JSON.parse(req.body.payload).data})
             }
         });
     }
@@ -194,33 +193,33 @@ function addMulti(req, res) {
 
 function update(req, res) {
     console.log("update");
-    if (!req.body.data) {
+    if (!JSON.parse(req.body.payload).data) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
     }
     let setQuery = "";
-    let data = req.body.data;
+    let data = JSON.parse(req.body.payload).data;
     for (let i = 0; i < Object.keys(data).length - 1; i++) {
         setQuery += Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "',"
     }
     setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(req.body.where, [])}`;
+    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(JSON.parse(req.body.payload).where, [])}`;
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating item with id " + req.body.id
+                    message: "Error updating item with id " + JSON.parse(req.body.payload).id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found item with id ${req.body.id}.`
+                        message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
                     });
                 } else {
-                    res.send({id: req.params.id, ...req.body.data});
+                    res.send({id: req.params.id, ...JSON.parse(req.body.payload).data});
                 }
             }
         }
@@ -229,7 +228,7 @@ function update(req, res) {
 
 function updateMulti(req, res) {
     console.log("update");
-    if (!req.body.data) {
+    if (!JSON.parse(req.body.payload).data) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
@@ -237,25 +236,25 @@ function updateMulti(req, res) {
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let setQuery = "";
-    let data = req.body.data;
+    let data = JSON.parse(req.body.payload).data;
     for (let i = 0; i < Object.keys(data).length - 1; i++) {
         setQuery += Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "',"
     }
     setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(req.body.where, [])}`;
+    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(JSON.parse(req.body.payload).where, [])}`;
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating item with id " + req.body.id
+                    message: "Error updating item with id " + JSON.parse(req.body.payload).id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found item with id ${req.body.id}.`
+                        message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
                     });
                 } else {
-                    res.send({id: req.params.id, ...req.body.data});
+                    res.send({id: req.params.id, ...JSON.parse(req.body.payload).data});
                 }
             }
         }
@@ -266,17 +265,17 @@ function deleteOne(req, res) {
     console.log("delete");
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
-    let query = `DELETE FROM ${mainTable} WHERE ${req.body.where}`;
+    let query = `DELETE FROM ${mainTable} WHERE ${JSON.parse(req.body.payload).where}`;
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete item with id " + req.body.id
+                message: "Could not delete item with id " + JSON.parse(req.body.payload).id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found item with id ${req.body.id}.`
+                    message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
                 });
             } else {
                 res.send({message: `item was deleted successfully!`});
@@ -294,12 +293,12 @@ function deleteAll(req, res) {
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete item with id " + req.body.id
+                message: "Could not delete item with id " + JSON.parse(req.body.payload).id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found item with id ${req.body.id}.`
+                    message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
                 });
             } else {
                 res.send({message: `item was deleted successfully!`});
