@@ -2,6 +2,7 @@ const sql = require("../config/db.js");
 const fs = require('fs');
 const csv = require('@fast-csv/parse');
 const apis = require("../config/apis");
+const uploadFolder = require("../config/uploadFolder");
 
 exports.operation = (req, res) => {
     //  console.log("bulk up");
@@ -12,7 +13,7 @@ exports.operation = (req, res) => {
     } else {
         try {
             let file = req.files.file;
-            let fileName = './upload/' + file.name;
+            let fileName = uploadFolder.csv + file.name;
             file.mv(fileName, function (err) {
                 if (err) {
                     return res.status(500).send(err);

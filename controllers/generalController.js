@@ -1,8 +1,10 @@
 const sql = require("../config/db.js");
 const tables = require("../config/tables");
+const uploadFolder = require("../config/uploadFolder");
 
 exports.operation = (req, res) => {
-    switch (JSON.parse(req.body.payload).method) {
+    let payload = JSON.parse(req.body.payload);
+    switch (payload.method) {
         case "get":
             get(req, res);
             break;
@@ -100,6 +102,7 @@ function getSelect(select) {
 
 function get(req, res) {
     console.log("get");
+    let payload = JSON.parse(req.body.payload);
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let subTables = tables[requestUrl].sub;
@@ -110,7 +113,7 @@ function get(req, res) {
 
     let query = `SELECT ${getSelect(select)} FROM ${mainTable}`;
 
-    query += join(subTables) + getWhere(JSON.parse(req.body.payload).where, where) + getGroupBy(groupBy) + getOrderBy(orderBy);
+    query += join(subTables) + getWhere(payload.where, where) + getGroupBy(groupBy) + getOrderBy(orderBy);
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
@@ -126,21 +129,43 @@ function get(req, res) {
 
 function add(req, res) {
     console.log("add");
-    if (!JSON.parse(req.body.payload)) {
+    let payload = JSON.parse(req.body.payload);
+    if (!payload) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
     } else {
+        if (req.files !== null) {
+            for (let i = 0; i < Object.keys(req.files).length; i++) {
+                let file = Object.values(req.files)[i];
+                let name = uploadFolder[req.route.path] + file.name;
+                let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
+                payload.data[Object.keys(req.files)[i]] = name;
+                try {
+                    file.mv(fullName, function (err) {
+                        if (err) {
+                            return res.status(500).send(err);
+                        } else {
+
+                        }
+                    });
+                } catch (err) {
+                    res.status(500).send({
+                        //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+                    });
+                }
+            }
+        }
         let requestUrl = req.originalUrl;
         let mainTable = tables[requestUrl].main;
         let fields = "";
         let values = "";
-        for (let i = 0; i < Object.keys(JSON.parse(req.body.payload).data).length - 1; i++) {
-            fields += Object.keys(JSON.parse(req.body.payload).data)[i] + ",";
-            values += "'" + JSON.parse(req.body.payload).data[Object.keys(JSON.parse(req.body.payload).data)[i]] + "',";
+        for (let i = 0; i < Object.keys(payload.data).length; i++) {
+            fields += "," + Object.keys(payload.data)[i];
+            values += "," + "'" + payload.data[Object.keys(payload.data)[i]] + "'";
         }
-        fields += Object.keys(JSON.parse(req.body.payload).data)[Object.keys(JSON.parse(req.body.payload).data).length - 1];
-        values += "'" + JSON.parse(req.body.payload).data[Object.keys(JSON.parse(req.body.payload).data)[Object.keys(JSON.parse(req.body.payload).data).length - 1]] + "'";
+        fields = fields.slice(1);
+        values = values.slice(1);
         let query = `INSERT INTO ${mainTable} (${fields}) VALUES (${values})`;
         console.log(query);
         sql.query(query, (err, result) => {
@@ -150,7 +175,7 @@ function add(req, res) {
                         err.message || "Some error occurred while creating the item."
                 });
             } else {
-                res.send({id: result.insertId, ...JSON.parse(req.body.payload).data})
+                res.send({id: result.insertId, ...payload.data})
             }
         });
     }
@@ -158,7 +183,8 @@ function add(req, res) {
 
 function addMulti(req, res) {
     console.log("add");
-    if (!JSON.parse(req.body.payload)) {
+    let payload = JSON.parse(req.body.payload);
+    if (!payload) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
@@ -166,15 +192,36 @@ function addMulti(req, res) {
         let requestUrl = req.originalUrl;
         let mainTable = tables[requestUrl].main;
         let query = "";
-        for (let j = 0; j < JSON.parse(req.body.payload).data.length; j++) {
+        for (let j = 0; j < payload.data.length; j++) {
+            if (req.files !== null) {
+                for (let i = 0; i < Object.keys(req.files).length; i++) {
+                    let file = Object.values(req.files)[i];
+                    let name = uploadFolder[req.route.path] + file.name;
+                    let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
+                    payload.data[j][Object.keys(req.files)[i]] = name;
+                    try {
+                        file.mv(fullName, function (err) {
+                            if (err) {
+                                return res.status(500).send(err);
+                            } else {
+
+                            }
+                        });
+                    } catch (err) {
+                        res.status(500).send({
+                            //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+                        });
+                    }
+                }
+            }
             let fields = "";
             let values = "";
-            for (let i = 0; i < Object.keys(JSON.parse(req.body.payload).data[j]).length - 1; i++) {
-                fields += Object.keys(JSON.parse(req.body.payload).data[j])[i] + ",";
-                values += "'" + JSON.parse(req.body.payload).data[j][Object.keys(JSON.parse(req.body.payload).data[j])[i]] + "',";
+            for (let i = 0; i < Object.keys(payload.data[j]).length; i++) {
+                fields += "," + Object.keys(payload.data[j])[i];
+                values += "," + "'" + payload.data[j][Object.keys(payload.data[j])[i]] + "'";
             }
-            fields += Object.keys(JSON.parse(req.body.payload).data[j])[Object.keys(JSON.parse(req.body.payload).data[j]).length - 1];
-            values += "'" + JSON.parse(req.body.payload).data[j][Object.keys(JSON.parse(req.body.payload).data[j])[Object.keys(JSON.parse(req.body.payload).data[j]).length - 1]] + "'";
+            fields = fields.slice(1);
+            values = values.slice(1);
             query += `INSERT INTO ${mainTable} (${fields}) VALUES (${values});`;
         }
 
@@ -185,7 +232,7 @@ function addMulti(req, res) {
                     message: err.message || "Some error occurred while creating the item."
                 });
             } else {
-                res.send({id: result.insertId, ...JSON.parse(req.body.payload).data})
+                res.send({id: result.insertId, ...payload.data})
             }
         });
     }
@@ -193,42 +240,66 @@ function addMulti(req, res) {
 
 function update(req, res) {
     console.log("update");
-    if (!JSON.parse(req.body.payload).data) {
+    let payload = JSON.parse(req.body.payload);
+    if (!payload.data) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
-    }
-    let setQuery = "";
-    let data = JSON.parse(req.body.payload).data;
-    for (let i = 0; i < Object.keys(data).length - 1; i++) {
-        setQuery += Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "',"
-    }
-    setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
-    let requestUrl = req.originalUrl;
-    let mainTable = tables[requestUrl].main;
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(JSON.parse(req.body.payload).where, [])}`;
-    console.log(query);
-    sql.query(query, (err, result) => {
-            if (err) {
-                res.status(500).send({
-                    message: "Error updating item with id " + JSON.parse(req.body.payload).id
-                });
-            } else {
-                if (result.affectedRows === 0) {
-                    res.status(404).send({
-                        message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
+    } else {
+        if (req.files !== null) {
+            for (let i = 0; i < Object.keys(req.files).length; i++) {
+                let file = Object.values(req.files)[i];
+                let name = uploadFolder[req.route.path] + file.name;
+                let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
+                payload.data[Object.keys(req.files)[i]] = name;
+                try {
+                    file.mv(fullName, function (err) {
+                        if (err) {
+                            return res.status(500).send(err);
+                        } else {
+
+                        }
                     });
-                } else {
-                    res.send({id: req.params.id, ...JSON.parse(req.body.payload).data});
+                } catch (err) {
+                    res.status(500).send({
+                        //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
+                    });
                 }
             }
         }
-    );
+        let setQuery = "";
+        let data = payload.data;
+        for (let i = 0; i < Object.keys(data).length; i++) {
+            setQuery += "," + Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "'"
+        }
+        setQuery = setQuery.slice(1);
+        let requestUrl = req.originalUrl;
+        let mainTable = tables[requestUrl].main;
+        let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(payload.where, [])}`;
+        console.log(query);
+        sql.query(query, (err, result) => {
+                if (err) {
+                    res.status(500).send({
+                        message: "Error updating item with id " + payload.id
+                    });
+                } else {
+                    if (result.affectedRows === 0) {
+                        res.status(404).send({
+                            message: `Not found item with id ${payload.id}.`
+                        });
+                    } else {
+                        res.send({id: req.params.id, ...payload.data});
+                    }
+                }
+            }
+        );
+    }
 }
 
 function updateMulti(req, res) {
     console.log("update");
-    if (!JSON.parse(req.body.payload).data) {
+    let payload = JSON.parse(req.body.payload);
+    if (!payload.data) {
         res.status(400).send({
             message: "Content can not be empty!"
         });
@@ -236,25 +307,25 @@ function updateMulti(req, res) {
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let setQuery = "";
-    let data = JSON.parse(req.body.payload).data;
-    for (let i = 0; i < Object.keys(data).length - 1; i++) {
-        setQuery += Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "',"
+    let data = payload.data;
+    for (let i = 0; i < Object.keys(data).length; i++) {
+        setQuery += "," + Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "'"
     }
-    setQuery += Object.keys(data)[Object.keys(data).length - 1] + "='" + data[Object.keys(data)[Object.keys(data).length - 1]] + "'";
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(JSON.parse(req.body.payload).where, [])}`;
+    setQuery = setQuery.slice(1);
+    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(payload.where, [])}`;
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
                 res.status(500).send({
-                    message: "Error updating item with id " + JSON.parse(req.body.payload).id
+                    message: "Error updating item with id " + payload.id
                 });
             } else {
                 if (result.affectedRows === 0) {
                     res.status(404).send({
-                        message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
+                        message: `Not found item with id ${payload.id}.`
                     });
                 } else {
-                    res.send({id: req.params.id, ...JSON.parse(req.body.payload).data});
+                    res.send({id: req.params.id, ...payload.data});
                 }
             }
         }
@@ -263,19 +334,20 @@ function updateMulti(req, res) {
 
 function deleteOne(req, res) {
     console.log("delete");
+    let payload = JSON.parse(req.body.payload);
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
-    let query = `DELETE FROM ${mainTable} WHERE ${JSON.parse(req.body.payload).where}`;
+    let query = `DELETE FROM ${mainTable} WHERE ${payload.where}`;
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete item with id " + JSON.parse(req.body.payload).id
+                message: "Could not delete item with id " + payload.id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
+                    message: `Not found item with id ${payload.id}.`
                 });
             } else {
                 res.send({message: `item was deleted successfully!`});
@@ -286,6 +358,7 @@ function deleteOne(req, res) {
 
 function deleteAll(req, res) {
     console.log("delete");
+    let payload = JSON.parse(req.body.payload);
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
     let query = `DELETE FROM ${mainTable}`;
@@ -293,12 +366,12 @@ function deleteAll(req, res) {
     sql.query(query, (err, result) => {
         if (err) {
             res.status(500).send({
-                message: "Could not delete item with id " + JSON.parse(req.body.payload).id
+                message: "Could not delete item with id " + payload.id
             });
         } else {
             if (res.affectedRows === 0) {
                 res.status(404).send({
-                    message: `Not found item with id ${JSON.parse(req.body.payload).id}.`
+                    message: `Not found item with id ${payload.id}.`
                 });
             } else {
                 res.send({message: `item was deleted successfully!`});
