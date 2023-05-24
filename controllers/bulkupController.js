@@ -13,7 +13,7 @@ exports.operation = (req, res) => {
     } else {
         try {
             let file = req.files.file;
-            let fileName = uploadFolder.csv + file.name;
+            let fileName = uploadFolder.base +  uploadFolder.csv + file.name;
             file.mv(fileName, function (err) {
                 if (err) {
                     return res.status(500).send(err);
