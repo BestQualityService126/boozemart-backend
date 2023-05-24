@@ -182,7 +182,7 @@ function add(req, res) {
 }
 
 function addMulti(req, res) {
-    console.log("add");
+    console.log("addMulti");
     let payload = JSON.parse(req.body.payload);
     if (!payload) {
         res.status(400).send({

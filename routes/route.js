@@ -30,12 +30,9 @@ module.exports = app => {
     router.post(apis.reportStore, generalController.operation);
     router.post(apis.reportUser, generalController.operation);
     router.post(apis.reportTax, generalController.operation);
-    router.post(apis.notificationToDriver, generalController.operation);
-    router.post(apis.notificationToStore, generalController.operation);
-    router.post(apis.notificationToUser, generalController.operation);
-    router.post(apis.notificationDrivers, generalController.operation);
-    router.post(apis.notificationStores, generalController.operation);
-    router.post(apis.notificationUsers, generalController.operation);
+    router.post(apis.driversForNotification, generalController.operation);
+    router.post(apis.storesForNotification, generalController.operation);
+    router.post(apis.usersForNotification, generalController.operation);
     router.post(apis.notificationListDriver, generalController.operation);
     router.post(apis.notificationListStore, generalController.operation);
     router.post(apis.notificationListUser, generalController.operation);

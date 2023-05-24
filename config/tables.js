@@ -167,21 +167,21 @@ module.exports = {
         orderBy: []
     },
 // 07 send notification
-    [apis.base + apis.notificationDrivers]: {
+    [apis.base + apis.driversForNotification]: {
         main: "delivery_boy",
         sub: [],
         where: ['added_by="admin"'],
         select: ["*"], groupBy: [],
         orderBy: []
     },
-    [apis.base + apis.notificationStores]: {
+    [apis.base + apis.storesForNotification]: {
         main: "store",
         sub: [],
         where: [],
         select: ["*"], groupBy: [],
         orderBy: []
     },
-    [apis.base + apis.notificationUsers]: {
+    [apis.base + apis.usersForNotification]: {
         main: "users",
         sub: [
             ['city', 'users.user_city', 'city.city_id'],
@@ -193,27 +193,27 @@ module.exports = {
         groupBy: ['users.name', 'users.id', 'city.city_name', 'society.society_name'],
         orderBy: []
     },
-    [apis.base + apis.notificationToDriver]: {
+   /* [apis.base + apis.notificationListDriver]: {
         main: "driver_notification",
         sub: [],
         where: [],
         select: ["*"], groupBy: [],
         orderBy: []
     },
-    [apis.base + apis.notificationToStore]: {
+    [apis.base + apis.notificationListStore]: {
         main: "store_notification",
         sub: [],
         where: [],
         select: ["*"], groupBy: [],
         orderBy: []
     },
-    [apis.base + apis.notificationToUser]: {
+    [apis.base + apis.notificationListUser]: {
         main: "user_notification",
         sub: [['users', 'user_notification.user_id', 'users.id']],
         where: [],
         select: ["*"], groupBy: [],
         orderBy: []
-    },
+    },*/
 // 08 notifications
     [apis.base + apis.notificationListDriver]: {
         main: "driver_notification",
