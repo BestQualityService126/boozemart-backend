@@ -10,6 +10,9 @@ exports.operation = (req, res) => {
         case "login":
             login(req, res);
             break;
+        case "reset":
+            reset(req, res);
+            break;
         case "get":
             get(req, res);
             break;
@@ -29,7 +32,7 @@ exports.operation = (req, res) => {
 };
 
 function login(req, res) {
-    console.log("get");
+    console.log("login");
 
     let strQuery = `SELECT * FROM admin where email="${JSON.parse(req.body.payload).data.email}"`;
 
@@ -83,9 +86,9 @@ function login(req, res) {
 }
 
 function changePassword(req, res) {
-    console.log("get");
+    console.log("change password");
 
-    let strQuery = `SELECT * FROM admin where id="${JSON.parse(req.body.payload).id}"`;
+    let strQuery = `SELECT * FROM admin where email="${JSON.parse(req.body.payload).email}"`;
 
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
@@ -110,6 +113,39 @@ function changePassword(req, res) {
                 }
                 let hashPassword = bcrypt.hashSync(JSON.parse(req.body.payload).newPassword, 8);
                 strQuery = `update admin set password="${hashPassword}" where id="${JSON.parse(req.body.payload).id}"`;
+                sql.query(strQuery, (err, result) => {
+                    if (err) {
+                        res.status(401).send(err);
+                    }
+                    res.status(200).send({
+                        success: true
+                    });
+                });
+            } else {
+                res.status(401).send(retData);
+            }
+
+        }
+    });
+}
+
+function reset(req, res) {
+    console.log("reset");
+
+    let strQuery = `SELECT * FROM admin where email="${JSON.parse(req.body.payload).data.email}"`;
+
+    console.log(strQuery);
+    sql.query(strQuery, (err, result) => {
+        if (err) {
+            res.status(500).send({
+                message: err.message || "Some error occurred while retrieving items."
+            });
+        } else {
+            let retData = {success: false, message: 'User Not Found.', userData: NULL};
+            if (result.length > 0) {
+                let passwordReset="boozemart";
+                let hashPassword = bcrypt.hashSync(passwordReset, 8);
+                strQuery = `update admin set password="${hashPassword}" where email="${JSON.parse(req.body.payload).data.email}"`;
                 sql.query(strQuery, (err, result) => {
                     if (err) {
                         res.status(401).send(err);
