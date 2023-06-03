@@ -306,13 +306,16 @@ function updateMulti(req, res) {
     }
     let requestUrl = req.originalUrl;
     let mainTable = tables[requestUrl].main;
-    let setQuery = "";
-    let data = payload.data;
-    for (let i = 0; i < Object.keys(data).length; i++) {
-        setQuery += "," + Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "'"
+    let query = "";
+    for (let j = 0; j < payload.data.length; j++) {
+        let setQuery = "";
+        let data = payload.data[j];
+        for (let i = 0; i < Object.keys(data).length; i++) {
+            setQuery += "," + Object.keys(data)[i] + "='" + data[Object.keys(data)[i]] + "'"
+        }
+        setQuery = setQuery.slice(1);
+        query += `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(payload.where[j], [])};`;
     }
-    setQuery = setQuery.slice(1);
-    let query = `UPDATE ${mainTable} SET ${setQuery}  ${getWhere(payload.where, [])}`;
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
