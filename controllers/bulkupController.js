@@ -13,7 +13,12 @@ exports.operation = (req, res) => {
     } else {
         try {
             let file = req.files.file;
-            let fileName = uploadFolder.base +  uploadFolder.csv + file.name;
+            let fs = require('fs');
+            let dir =  uploadFolder.base +  uploadFolder.csv ;
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            let fileName = dir + file.name;
             file.mv(fileName, function (err) {
                 if (err) {
                     return res.status(500).send(err);

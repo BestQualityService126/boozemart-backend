@@ -25,6 +25,7 @@ require("./routes/route.js")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
+global.__basedir = __dirname;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

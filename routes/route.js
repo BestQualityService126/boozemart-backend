@@ -10,6 +10,9 @@ module.exports = app => {
 
     var router = require("express").Router();
 
+    router.get(apis.image+"/:cat/:name", generalController.getImage);
+
+
     router.post(apis.home, [authJwt.verifyToken], homeController.get);
 
     router.post(apis.admin, adminController.operation);

@@ -1,7 +1,7 @@
 const apis = require('../config/apis');
 
 module.exports = {
-    base: "F:/Web/Aditya/upload/",
+    base: "./upload/",
 
     [apis.admin]: "admin/",
     [apis.logo]: "logo/",

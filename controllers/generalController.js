@@ -1,6 +1,19 @@
+const apis = require("../config/apis");
+
 const sql = require("../config/db.js");
 const tables = require("../config/tables");
 const uploadFolder = require("../config/uploadFolder");
+
+exports.getImage = (req, res) => {
+    const cat = req.params.cat;
+    const fileName = req.params.name;
+    const fullUrl = __basedir + "/upload/" + cat + "/" + fileName;
+    if (fileName) {
+        res.sendFile(fullUrl);
+    } else {
+        res.status(404).send('file name is empty!' + fileName);
+    }
+};
 
 exports.operation = (req, res) => {
     let payload = JSON.parse(req.body.payload);
@@ -139,8 +152,15 @@ function add(req, res) {
             for (let i = 0; i < Object.keys(req.files).length; i++) {
                 let file = Object.values(req.files)[i];
                 let name = uploadFolder[req.route.path] + file.name;
-                let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
-                payload.data[Object.keys(req.files)[i]] = name;
+
+                let fs = require('fs');
+                let dir = uploadFolder["base"] + uploadFolder[req.route.path];
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, {recursive: true});
+                }
+
+                let fullName = dir + file.name;
+                payload.data[Object.keys(req.files)[i]] = "http://" + req.headers.host + apis.base + "/upload/" + name;
                 try {
                     file.mv(fullName, function (err) {
                         if (err) {
@@ -197,8 +217,13 @@ function addMulti(req, res) {
                 for (let i = 0; i < Object.keys(req.files).length; i++) {
                     let file = Object.values(req.files)[i];
                     let name = uploadFolder[req.route.path] + file.name;
+                    let fs = require('fs');
+                    let dir = uploadFolder["base"] + uploadFolder[req.route.path];
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir, {recursive: true});
+                    }
                     let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
-                    payload.data[j][Object.keys(req.files)[i]] = name;
+                    payload.data[j][Object.keys(req.files)[i]] = "http://" + req.headers.host + apis.base + "/upload/" + name;
                     try {
                         file.mv(fullName, function (err) {
                             if (err) {
@@ -250,8 +275,13 @@ function update(req, res) {
             for (let i = 0; i < Object.keys(req.files).length; i++) {
                 let file = Object.values(req.files)[i];
                 let name = uploadFolder[req.route.path] + file.name;
+                let fs = require('fs');
+                let dir = uploadFolder["base"] + uploadFolder[req.route.path];
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, {recursive: true});
+                }
                 let fullName = uploadFolder["base"] + uploadFolder[req.route.path] + file.name;
-                payload.data[Object.keys(req.files)[i]] = name;
+                payload.data[Object.keys(req.files)[i]] = "http://" + req.headers.host + apis.base + "/upload/" + name;
                 try {
                     file.mv(fullName, function (err) {
                         if (err) {

@@ -1,6 +1,8 @@
 module.exports = {
     base:"/api/v1",
 
+    image:"/upload",
+
     admin: "/admin",
 
     home: "/dashboard",
