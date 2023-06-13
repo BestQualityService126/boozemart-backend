@@ -153,6 +153,7 @@ function add(req, res) {
                 let file = Object.values(req.files)[i];
                 let name = uploadFolder[req.route.path] + file.name;
 
+                //make directory if not exist
                 let fs = require('fs');
                 let dir = uploadFolder["base"] + uploadFolder[req.route.path];
                 if (!fs.existsSync(dir)) {
