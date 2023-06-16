@@ -5,6 +5,7 @@ const { authJwt } = require("../middleware");
 module.exports = app => {
     const generalController = require("../controllers/generalController");
     const homeController = require("../controllers/homeController");
+    const dbInstaller = require("../controllers/dbInstallerController");
     const adminController = require("../controllers/adminController");
     const bulkupController = require("../controllers/bulkupController");
 
@@ -14,6 +15,8 @@ module.exports = app => {
 
 
     router.post(apis.home, [authJwt.verifyToken], homeController.get);
+
+    router.post(apis.dbInstaller, dbInstaller.operation);
 
     router.post(apis.admin, adminController.operation);
 

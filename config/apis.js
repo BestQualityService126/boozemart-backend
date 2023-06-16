@@ -3,6 +3,8 @@ module.exports = {
 
     image:"/upload",
 
+    dbInstaller: "/dbInstaller",
+
     admin: "/admin",
 
     home: "/dashboard",
