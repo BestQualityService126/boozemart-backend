@@ -55,14 +55,14 @@ store_orders.varient_id,SUM(store_orders.qty) as totalqty,SUM(store_orders.price
 from store_orders join orders on store_orders.order_cart_id=orders.cart_id 
 where orders.order_status="Completed" and orders.delivery_date between "${to}" and "${next_date}" 
 group by store_orders.store_id,store_orders.product_name,store_orders.varient_id,store_orders.varient_image,store_orders.quantity,store_orders.unit,store_orders.description 
-order by count desc `;//5 limit
+order by count desc LIMIT 5`;//5 limit
 
 let query_ongoing = `select * from orders 
 join store on orders.store_id=store.id 
 join users on orders.user_id=users.id
  join address on orders.address_id=address.address_id 
  join delivery_boy on orders.dboy_id=delivery_boy.dboy_id 
-where orders.order_status!="Null" and orders.payment_method!="Null" order by orders.order_id desc` //limit 5
+where orders.order_status!="Null" and orders.payment_method!="Null" order by orders.order_id desc LIMIT 5` //limit 5
 
 
 exports.get = (req, res) => {

@@ -41,29 +41,41 @@ function createDB(req, res) {
     let password = JSON.parse(req.body.payload).data.password;
     let database = JSON.parse(req.body.payload).data.database;
 
-    let newCon = mysql.createConnection({
-        host: host,
-        user: user,
-        password: password,
-    });
+    if (host === dbConfig.HOST && user === dbConfig.USER && password === dbConfig.PASSWORD /*&& database === dbConfig.DB*/) {
+        let newCon = mysql.createConnection({
+            host: host,
+            user: user,
+            password: password,
+        });
 
-    let strQuery = `CREATE DATABASE ${database}`;
-    newCon.connect(function (err) {
-        if (err) {
-            console.log(err)
-        } else {
-            console.log("Connected!");
-            newCon.query(strQuery, function (err, result) {
-                if(err){
-                    console.log(err)
-                }else {
-                    console.log("Database created");
-                }
-            });
-        }
+        let strQuery = `CREATE DATABASE ${database}`;
+        newCon.connect(function (err) {
+            if (err) {
+                res.send(err)
+            } else {
+                console.log("Connected!");
+                newCon.query(strQuery, function (err, result) {
+                    if (err) {
+                        res.send(err)
+                    } else {
+                        let fs = require('fs');
+                        strQuery = fs.readFileSync("./boozemart.sql").toString();
+                        connection.query(strQuery, (err, result) => {
+                            if (err) {
+                                res.status(500).send({
+                                    message:
+                                        err.message || "Some error occurred while creating the item."
+                                });
+                            } else {
+                                res.send("Database created");
+                            }
+                        });
+                    }
+                });
+            }
 
-    });
-
-console.log(connection.database)
-    connection.database = database;
+        });
+    } else {
+        res.status(500).send("Input correctly")
+    }
 }
