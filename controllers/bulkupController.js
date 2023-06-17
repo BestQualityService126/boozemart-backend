@@ -1,4 +1,4 @@
-const sql = require("../config/db.js");
+const sql = require("../config/connection.js");
 const fs = require('fs');
 const csv = require('@fast-csv/parse');
 const apis = require("../config/apis");

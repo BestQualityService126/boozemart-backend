@@ -1,4 +1,4 @@
-const sql = require("../config/db.js");
+const sql = require("../config/connection.js");
 
 
 let data = {

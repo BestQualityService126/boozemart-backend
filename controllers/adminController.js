@@ -1,4 +1,4 @@
-const sql = require("../config/db.js");
+const sql = require("../config/connection.js");
 const authConfig = require("../config/auth.config");
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");

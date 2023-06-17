@@ -1,5 +1,6 @@
-const sql = require("../config/db.js");
+const connection = require("../config/connection.js");
 const dbConfig = require("../config/db.config.js");
+const mysql = require("mysql");
 
 exports.operation = (req, res) => {
     switch (JSON.parse(req.body.payload).method) {
@@ -18,7 +19,7 @@ function verify(req, res) {
     let licenseCode = JSON.parse(req.body.payload).data.licenseCode;
     let name = JSON.parse(req.body.payload).data.name;
 
-    let strQuery = `SELECT * FROM admin where email="${licenseCode}"`;
+    let strQuery = `SELECT * FROM licensebox WHERE license="${licenseCode}" and client="${name}"`;
 
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
@@ -27,7 +28,7 @@ function verify(req, res) {
                 message: err.message || "Some error occurred while retrieving items."
             });
         } else {
-            res.send()
+            res.send(result)
         }
     });
 }
@@ -40,20 +41,29 @@ function createDB(req, res) {
     let password = JSON.parse(req.body.payload).data.password;
     let database = JSON.parse(req.body.payload).data.database;
 
-    dbConfig.HOST = host;
-    dbConfig.USER = user;
-    dbConfig.PASSWORD = password;
+    let newCon = mysql.createConnection({
+        host: host,
+        user: user,
+        password: password,
+    });
 
     let strQuery = `CREATE DATABASE ${database}`;
-
-    console.log(strQuery);
-    sql.query(strQuery, (err, result) => {
+    newCon.connect(function (err) {
         if (err) {
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving items."
-            });
+            console.log(err)
         } else {
-            res.send({success: "ok"})
+            console.log("Connected!");
+            newCon.query(strQuery, function (err, result) {
+                if(err){
+                    console.log(err)
+                }else {
+                    console.log("Database created");
+                }
+            });
         }
+
     });
+
+console.log(connection.database)
+    connection.database = database;
 }
