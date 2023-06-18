@@ -4,6 +4,7 @@ var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 const {NULL} = require("mysql/lib/protocol/constants/types");
 const uploadFolder = require("../config/uploadFolder");
+const log = require("./log");
 
 exports.operation = (req, res) => {
     switch (JSON.parse(req.body.payload).method) {
@@ -39,6 +40,7 @@ function login(req, res) {
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving items."
             });
@@ -93,6 +95,7 @@ function changePassword(req, res) {
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving items."
             });
@@ -137,6 +140,7 @@ function reset(req, res) {
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving items."
             });
@@ -169,6 +173,7 @@ function get(req, res) {
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving items."
             });
@@ -197,6 +202,7 @@ function add(req, res) {
         console.log(query);
         sql.query(query, (err, result) => {
             if (err) {
+                log.writeLog(err.message || "Some error occurred while retrieving items.");
                 res.status(500).send({
                     message: err.message || "Some error occurred while creating the item."
                 });
@@ -230,6 +236,7 @@ function update(req, res) {
                         }
                     });
                 } catch (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
                     });
@@ -245,6 +252,7 @@ function update(req, res) {
         console.log(query);
         sql.query(query, (err, result) => {
                 if (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         message: "Error updating item with id " + JSON.parse(req.body.payload).id
                     });
@@ -268,6 +276,7 @@ function deleteOne(req, res) {
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: "Could not delete item with id " + JSON.parse(req.body.payload).id
             });

@@ -3,6 +3,7 @@ const fs = require('fs');
 const csv = require('@fast-csv/parse');
 const apis = require("../config/apis");
 const uploadFolder = require("../config/uploadFolder");
+const log = require("./log");
 
 exports.operation = (req, res) => {
     //  console.log("bulk up");
@@ -21,6 +22,7 @@ exports.operation = (req, res) => {
             let fileName = dir + file.name;
             file.mv(fileName, function (err) {
                 if (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     return res.status(500).send(err);
                 } else {
                     let arr = [];
@@ -37,7 +39,7 @@ exports.operation = (req, res) => {
                             } else {
                                 switch (req.url) {
                                     case apis.bulkUploadVarient:
-                                        query = bulkUpVarient(arr);
+                                        query = bulkUpVariant(arr);
                                         break;
                                     case apis.bulkUploadCity:
                                         query = bulkUpCity(arr);
@@ -49,6 +51,7 @@ exports.operation = (req, res) => {
                                 //   console.log(query);
                                 sql.query(query, (err, result) => {
                                     if (err) {
+                                        log.writeLog(err.message || "Some error occurred while retrieving items.");
                                         res.status(500).send({
                                             message:
                                                 err.message || "Some error occurred while creating the item."
@@ -62,6 +65,7 @@ exports.operation = (req, res) => {
                 }
             });
         } catch (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
             });
@@ -77,6 +81,7 @@ function bulkUpProduct(arr, res) {
     }
     sql.query(query, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             console.log(err);
         } else {
             query = "";
@@ -88,6 +93,7 @@ function bulkUpProduct(arr, res) {
             }
             sql.query(query, (err, result) => {
                 if (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         message:
                             err.message || "Some error occurred while creating the item."
@@ -100,7 +106,7 @@ function bulkUpProduct(arr, res) {
     });
 }
 
-function bulkUpVarient(arr) {
+function bulkUpVariant(arr) {
     let query = "";
     for (let i = 1; i < arr.length; i++) {
         query += `INSERT INTO product_varient (product_id,quantity,unit,base_mrp,base_price,description,ean,cost_price,admin_share) VALUES ` +

@@ -1,5 +1,5 @@
-const sql = require("../config/connection.js");
-
+const sql = require("../config/connection");
+const log = require("./log");
 
 let data = {
     last_week: 0,
@@ -86,6 +86,7 @@ exports.get = (req, res) => {
     //  console.log(query);
     sql.query(query, (err, results, fields) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message:
                     err.message || "Some error occurred while retrieving items."

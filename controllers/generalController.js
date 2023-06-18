@@ -3,6 +3,7 @@ const apis = require("../config/apis");
 const sql = require("../config/connection.js");
 const tables = require("../config/tables");
 const uploadFolder = require("../config/uploadFolder");
+const log = require("./log");
 
 exports.getImage = (req, res) => {
     const cat = req.params.cat;
@@ -127,11 +128,12 @@ function get(req, res) {
     let query = `SELECT ${getSelect(select)} FROM ${mainTable}`;
 
     query += join(subTables) + getWhere(payload.where, where) + getGroupBy(groupBy) + getOrderBy(orderBy);
-   // console.log(sql);
- //   console.log(query);
+    // console.log(sql);
+    //   console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
-          console.log(err)
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
+            console.log(err)
             if (err.code === "ER_BAD_DB_ERROR" /*|| err.code === "PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR"*/) {
                 res.send("No database");
             } else {
@@ -170,12 +172,14 @@ function add(req, res) {
                 try {
                     file.mv(fullName, function (err) {
                         if (err) {
+                            log.writeLog(err.message || "Some error occurred while retrieving items.");
                             return res.status(500).send(err);
                         } else {
 
                         }
                     });
                 } catch (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
                     });
@@ -196,6 +200,7 @@ function add(req, res) {
         console.log(query);
         sql.query(query, (err, result) => {
             if (err) {
+                log.writeLog(err.message || "Some error occurred while retrieving items.");
                 res.status(500).send({
                     message:
                         err.message || "Some error occurred while creating the item."
@@ -233,12 +238,14 @@ function addMulti(req, res) {
                     try {
                         file.mv(fullName, function (err) {
                             if (err) {
+                                log.writeLog(err.message || "Some error occurred while retrieving items.");
                                 return res.status(500).send(err);
                             } else {
 
                             }
                         });
                     } catch (err) {
+                        log.writeLog(err.message || "Some error occurred while retrieving items.");
                         res.status(500).send({
                             //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
                         });
@@ -259,6 +266,7 @@ function addMulti(req, res) {
         console.log(query);
         sql.query(query, (err, result) => {
             if (err) {
+                log.writeLog(err.message || "Some error occurred while retrieving items.");
                 res.status(500).send({
                     message: err.message || "Some error occurred while creating the item."
                 });
@@ -291,12 +299,14 @@ function update(req, res) {
                 try {
                     file.mv(fullName, function (err) {
                         if (err) {
+                            log.writeLog(err.message || "Some error occurred while retrieving items.");
                             return res.status(500).send(err);
                         } else {
 
                         }
                     });
                 } catch (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         //  message: `Could not upload the file: ${req.file.originalname}. ${err}`,
                     });
@@ -315,6 +325,7 @@ function update(req, res) {
         console.log(query);
         sql.query(query, (err, result) => {
                 if (err) {
+                    log.writeLog(err.message || "Some error occurred while retrieving items.");
                     res.status(500).send({
                         message: "Error updating item with id " + payload.id
                     });
@@ -355,6 +366,7 @@ function updateMulti(req, res) {
     console.log(query);
     sql.query(query, (err, result) => {
             if (err) {
+                log.writeLog(err.message || "Some error occurred while retrieving items.");
                 res.status(500).send({
                     message: "Error updating item with id " + payload.id
                 });
@@ -380,6 +392,7 @@ function deleteOne(req, res) {
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: "Could not delete item with id " + payload.id
             });
@@ -404,6 +417,7 @@ function deleteAll(req, res) {
     console.log(query);
     sql.query(query, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: "Could not delete item with id " + payload.id
             });

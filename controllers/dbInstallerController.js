@@ -2,6 +2,7 @@ const connection = require("../config/connection.js");
 const dbConfig = require("../config/db.config.js");
 const mysql = require("mysql");
 const Importer = require('mysql-import');
+const log = require('./log');
 
 exports.operation = (req, res) => {
     switch (JSON.parse(req.body.payload).method) {
@@ -25,6 +26,7 @@ function verify(req, res) {
     console.log(strQuery);
     sql.query(strQuery, (err, result) => {
         if (err) {
+            log.writeLog(err.message || "Some error occurred while retrieving items.");
             res.status(500).send({
                 message: err.message || "Some error occurred while retrieving items."
             });
@@ -52,11 +54,13 @@ function createDB(req, res) {
         let strQuery = `CREATE DATABASE ${database}`;
         newCon.connect(function (err) {
             if (err) {
+                log.writeLog(err.message || "Some error occurred while retrieving items.");
                 res.send(err)
             } else {
                 console.log("Connected!");
                 newCon.query(strQuery, function (err, result) {
                     if (err) {
+                        log.writeLog(err.message || "Some error occurred while retrieving items.");
                         res.send(err)
                     } else {
                         /* let fs = require('fs');
@@ -87,6 +91,7 @@ function createDB(req, res) {
                             let files_imported = importer.getImported();
                             console.log(`${files_imported.length} SQL file(s) imported.`);
                         }).catch(err => {
+                            log.writeLog(err.message || "Some error occurred while retrieving items.");
                             console.error(err);
                         });
                     }
