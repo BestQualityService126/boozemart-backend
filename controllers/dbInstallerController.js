@@ -1,6 +1,7 @@
 const connection = require("../config/connection.js");
 const dbConfig = require("../config/db.config.js");
 const mysql = require("mysql");
+const Importer = require('mysql-import');
 
 exports.operation = (req, res) => {
     switch (JSON.parse(req.body.payload).method) {
@@ -58,17 +59,35 @@ function createDB(req, res) {
                     if (err) {
                         res.send(err)
                     } else {
-                        let fs = require('fs');
-                        strQuery = fs.readFileSync("./boozemart.sql").toString();
-                        connection.query(strQuery, (err, result) => {
-                            if (err) {
-                                res.status(500).send({
-                                    message:
-                                        err.message || "Some error occurred while creating the item."
-                                });
-                            } else {
-                                res.send("Database created");
-                            }
+                        /* let fs = require('fs');
+                         strQuery = fs.readFileSync("./boozemart.sql").toString();
+
+                         let arrQuery=strQuery.split(";");
+
+                         connection.query(strQuery, (err, result) => {
+                             if (err) {
+                                 res.status(500).send({
+                                     message:
+                                         err.message || "Some error occurred while creating the item."
+                                 });
+                             } else {
+                                 res.send("Database created");
+                             }
+                         });*/
+
+
+                        const importer = new Importer({host, user, password, database});
+
+                        importer.onProgress(progress => {
+                            let percent = Math.floor(progress.bytes_processed / progress.total_bytes * 10000) / 100;
+                            console.log(`${percent}% Completed`);
+                        });
+
+                        importer.import('./boozemart.sql').then(() => {
+                            let files_imported = importer.getImported();
+                            console.log(`${files_imported.length} SQL file(s) imported.`);
+                        }).catch(err => {
+                            console.error(err);
                         });
                     }
                 });
